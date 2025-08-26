@@ -11,6 +11,7 @@ import { ChannelItem } from '@/types/youtube';
 
 interface HomeClientProps {
     channels: ChannelItem[];
+    subscriptions: string[];
 }
 
 // Dummy video data for subscribed channels
@@ -77,7 +78,10 @@ const recentVideos = [
     },
 ];
 
-export default function HomeClient({ channels }: HomeClientProps) {
+export default function HomeClient({
+    channels,
+    subscriptions,
+}: HomeClientProps) {
     const [activeTab, setActiveTab] = useState('home');
     const [searchModalOpen, setSearchModalOpen] = useState(false);
 
@@ -165,6 +169,7 @@ export default function HomeClient({ channels }: HomeClientProps) {
                                             <ChannelCard
                                                 key={channel.id}
                                                 channel={channel}
+                                                isSubscribed={subscriptions.includes(channel.id)}
                                             />
                                         ))}
                                     </div>

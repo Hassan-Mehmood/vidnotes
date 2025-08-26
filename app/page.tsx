@@ -1,6 +1,10 @@
 import Navbar from '@/components/ui/navbar';
 import HomeClient from '@/components/home/home-client';
 import { YouTubeChannelsResponse, ChannelItem } from '@/types/youtube';
+import { db } from '@/db';
+import { auth } from '@clerk/nextjs/server';
+import { eq } from 'drizzle-orm';
+import { channelsTable, usersTable, usersToChannelsTable } from '@/db/schema';
 
 const topYouTubeChannels = [
     { name: 'MrBeast', id: 'UCX6OQ3DkcsbYNE6H8uQQuVA' },
@@ -35,7 +39,19 @@ async function fetchYouTubeChannels(): Promise<ChannelItem[]> {
         }
 
         const data: YouTubeChannelsResponse = await response.json();
-        return data.items;
+
+        // Sort the channels based on ids
+        const sortedChannels = data.items.sort((a, b) => {
+            const indexA = topYouTubeChannels.findIndex(
+                (channel) => channel.id === a.id
+            );
+            const indexB = topYouTubeChannels.findIndex(
+                (channel) => channel.id === b.id
+            );
+            return indexA - indexB;
+        });
+
+        return sortedChannels;
     } catch (error) {
         console.error('Error fetching YouTube channels:', error);
         // Return empty array as fallback
@@ -43,14 +59,45 @@ async function fetchYouTubeChannels(): Promise<ChannelItem[]> {
     }
 }
 
+async function fetchUserSubscriptions(userId: string) {
+    try {
+        // Single query using JOIN to get YouTube channel IDs directly
+        const channelIds = await db
+            .select({
+                channelId: channelsTable.channelId,
+            })
+            .from(usersTable)
+            .innerJoin(
+                usersToChannelsTable,
+                eq(usersTable.id, usersToChannelsTable.userId)
+            )
+            .innerJoin(
+                channelsTable,
+                eq(usersToChannelsTable.channelId, channelsTable.id)
+            )
+            .where(eq(usersTable.clerkId, userId));
+
+        return channelIds.map((row) => row.channelId);
+    } catch (error) {
+        console.error('Error fetching user subscriptions:', error);
+        throw error;
+    }
+}
+
 export default async function Home() {
-    // Fetch YouTube channels data on the server
+    const { userId } = await auth();
+
+    if (!userId) {
+        throw new Error('User not signed in');
+    }
+
     const channels = await fetchYouTubeChannels();
+    const userSubscriptions = await fetchUserSubscriptions(userId);
 
     return (
         <div className="min-h-screen bg-gray-50">
             <Navbar />
-            <HomeClient channels={channels} />
+            <HomeClient channels={channels} subscriptions={userSubscriptions} />
 
             {/* Footer */}
             <footer className="mt-24 bg-gray-900 text-white py-16">
