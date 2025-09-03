@@ -1,6 +1,11 @@
 import Navbar from '@/components/ui/navbar';
 import HomeClient from '@/components/home/home-client';
-import { YouTubeChannelsResponse, ChannelItem } from '@/types/youtube';
+import {
+    YouTubeChannelsResponse,
+    ChannelItem,
+    YouTubeVideosResponse,
+    VideoItem,
+} from '@/types/youtube';
 import { db } from '@/db';
 import { auth } from '@clerk/nextjs/server';
 import { eq } from 'drizzle-orm';
@@ -84,6 +89,80 @@ async function fetchUserSubscriptions(userId: string) {
     }
 }
 
+async function fetchSubscriptionVideos(
+    channelIds: string[]
+): Promise<VideoItem[]> {
+    if (channelIds.length === 0) {
+        return [];
+    }
+
+    try {
+        // Fetch videos from each channel in parallel using Promise.all
+        const videoPromises = channelIds.map(async (channelId) => {
+            try {
+                const response = await fetch(
+                    `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=15&order=date&type=video&key=${process.env.GCP_API_KEY}`,
+                    { next: { revalidate: 1800 } } // Cache for 30 minutes
+                );
+
+                if (!response.ok) {
+                    console.error(
+                        `YouTube API error for channel ${channelId}: ${response.status}`
+                    );
+                    return [];
+                }
+
+                const data = await response.json();
+
+                // Convert search results to video format
+                return (
+                    data.items?.map((item: any) => ({
+                        kind: 'youtube#video',
+                        etag: item.etag,
+                        id: item.id.videoId,
+                        snippet: {
+                            ...item.snippet,
+                            categoryId: '0',
+                            liveBroadcastContent: 'none',
+                            localized: {
+                                title: item.snippet.title,
+                                description: item.snippet.description,
+                            },
+                        },
+                    })) || []
+                );
+            } catch (error) {
+                console.error(
+                    `Error fetching videos for channel ${channelId}:`,
+                    error
+                );
+                return [];
+            }
+        });
+
+        // Wait for all channel requests to complete
+        const videoResults = await Promise.allSettled(videoPromises);
+        const allVideos = videoResults
+            .filter(
+                (result): result is PromiseFulfilledResult<VideoItem[]> =>
+                    result.status === 'fulfilled'
+            )
+            .flatMap((result) => result.value);
+
+        // Sort by publish date (newest first) and limit results
+        return allVideos
+            .sort(
+                (a, b) =>
+                    new Date(b.snippet.publishedAt).getTime() -
+                    new Date(a.snippet.publishedAt).getTime()
+            )
+            .slice(0, 20);
+    } catch (error) {
+        console.error('Error fetching subscription videos:', error);
+        return [];
+    }
+}
+
 export default async function Home() {
     const { userId } = await auth();
 
@@ -93,11 +172,16 @@ export default async function Home() {
 
     const channels = await fetchYouTubeChannels();
     const userSubscriptions = await fetchUserSubscriptions(userId);
+    const subscriptionVideos = await fetchSubscriptionVideos(userSubscriptions);
 
     return (
         <div className="min-h-screen bg-gray-50">
             <Navbar />
-            <HomeClient channels={channels} subscriptions={userSubscriptions} />
+            <HomeClient
+                channels={channels}
+                subscriptions={userSubscriptions}
+                subscriptionVideos={subscriptionVideos}
+            />
 
             {/* Footer */}
             <footer className="mt-24 bg-gray-900 text-white py-16">

@@ -1,8 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# VidNotes - YouTube Video Transcript & AI Summary App
+
+A Next.js application that fetches YouTube video transcripts and generates AI-powered summaries using OpenAI.
+
+## Features
+
+- 🎥 YouTube video discovery and browsing
+- 📝 Automatic transcript extraction from YouTube videos
+- 🤖 AI-powered video summaries using OpenAI GPT
+- 🎨 Modern, responsive UI with Tailwind CSS
+- 🔐 User authentication with Clerk
+- 💾 Database integration with Drizzle ORM
+
+## Environment Variables
+
+Create a `.env.local` file in the root directory with the following variables:
+
+```env
+# YouTube Data API
+GCP_API_KEY=your_youtube_api_key_here
+
+# OpenAI API
+OPENAI_API_KEY=your_openai_api_key_here
+
+# Supadata API (for transcript fetching)
+SUPADATA_API_KEY=your_supadata_api_key_here
+
+# Clerk Authentication
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+CLERK_SECRET_KEY=your_clerk_secret_key
+
+# Database
+DATABASE_URL=your_database_url_here
+```
 
 ## Getting Started
 
-First, run the development server:
+First, install dependencies:
+
+```bash
+pnpm install
+```
+
+Then, run the development server:
 
 ```bash
 npm run dev

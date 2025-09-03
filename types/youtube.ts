@@ -37,3 +37,60 @@ export interface YouTubeChannelsResponse {
     };
     items: ChannelItem[];
 }
+
+export interface VideoThumbnail {
+    url: string;
+    width: number;
+    height: number;
+}
+
+export interface VideoSnippet {
+    publishedAt: string;
+    channelId: string;
+    title: string;
+    description: string;
+    thumbnails: {
+        default?: VideoThumbnail;
+        medium?: VideoThumbnail;
+        high?: VideoThumbnail;
+        standard?: VideoThumbnail;
+        maxres?: VideoThumbnail;
+    };
+    channelTitle: string;
+    tags?: string[];
+    categoryId: string;
+    liveBroadcastContent: string;
+    localized: {
+        title: string;
+        description: string;
+    };
+    defaultAudioLanguage?: string;
+}
+
+export interface VideoStatistics {
+    viewCount: string;
+    likeCount: string;
+    dislikeCount?: string;
+    favoriteCount: string;
+    commentCount: string;
+}
+
+export interface VideoItem {
+    kind: string;
+    etag: string;
+    id: string;
+    snippet: VideoSnippet;
+    statistics?: VideoStatistics;
+}
+
+export interface YouTubeVideosResponse {
+    kind: string;
+    etag: string;
+    nextPageToken?: string;
+    prevPageToken?: string;
+    pageInfo: {
+        totalResults: number;
+        resultsPerPage: number;
+    };
+    items: VideoItem[];
+}
