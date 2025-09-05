@@ -33,7 +33,17 @@ export async function getVideoTranscript(videoId: string) {
         const transcript = transcriptResult as any;
 
         if (transcript && transcript.content) {
-            return transcript.content;
+            // Handle different transcript formats
+            if (typeof transcript.content === 'string') {
+                return transcript.content;
+            } else if (Array.isArray(transcript.content)) {
+                // Extract text from array of objects with {text, offset, duration}
+                return transcript.content
+                    .map((item: any) => item.text || item)
+                    .join(' ');
+            } else {
+                return String(transcript.content);
+            }
         } else {
             throw new Error('No transcript content received from Supadata');
         }
@@ -105,6 +115,79 @@ export async function saveVideoDataToDB(videoId: string, transcript: string, sum
         console.log('Video data saved to database:', videoId);
     } catch (error) {
         console.error('Error saving video data to database:', error);
+    }
+}
+
+// Get transcript only (faster loading)
+export async function getVideoTranscriptOnly(videoId: string) {
+    try {
+        // First, check if we have transcript in the database
+        const existingData = await getVideoDataFromDB(videoId);
+        
+        if (existingData && existingData.transcript) {
+            console.log('Found existing transcript in database for video:', videoId);
+            return {
+                transcript: existingData.transcript,
+                fromCache: true
+            };
+        }
+        
+        console.log('Generating new transcript for video:', videoId);
+        
+        // Generate new transcript
+        const transcript = await getVideoTranscript(videoId);
+        
+        return {
+            transcript,
+            fromCache: false
+        };
+    } catch (error) {
+        console.error('Error in getVideoTranscriptOnly:', error);
+        throw error;
+    }
+}
+
+// Get summary only (can be called after transcript is shown)
+export async function getVideoSummaryOnly(videoId: string, transcript?: string) {
+    try {
+        // First, check if we have summary in the database
+        const existingData = await getVideoDataFromDB(videoId);
+        
+        if (existingData && existingData.summary) {
+            console.log('Found existing summary in database for video:', videoId);
+            return {
+                summary: existingData.summary,
+                fromCache: true
+            };
+        }
+        
+        console.log('Generating new summary for video:', videoId);
+        
+        // If transcript is provided, use it; otherwise fetch it
+        let transcriptText = transcript;
+        if (!transcriptText) {
+            if (existingData && existingData.transcript) {
+                transcriptText = existingData.transcript;
+            } else {
+                transcriptText = await getVideoTranscript(videoId);
+            }
+        }
+        
+        // Generate summary
+        const summary = await generateSummary(transcriptText!);
+        
+        // Save to database in background
+        saveVideoDataToDB(videoId, transcriptText!, summary).catch(error => {
+            console.error('Background save failed:', error);
+        });
+        
+        return {
+            summary,
+            fromCache: false
+        };
+    } catch (error) {
+        console.error('Error in getVideoSummaryOnly:', error);
+        throw error;
     }
 }
 
