@@ -8,6 +8,13 @@
       "when": 1755893336029,
       "tag": "0000_blue_dreadnoughts",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1757066120306,
+      "tag": "0001_heavy_skreet",
+      "breakpoints": true
     }
   ]
 }

@@ -1,5 +1,5 @@
 import { VideoItem } from '@/types/youtube';
-import { getVideoTranscript, generateSummary } from '@/lib/transcript';
+import { getVideoTranscriptAndSummary } from '@/lib/transcript';
 
 async function getVideoDetails(videoId: string): Promise<VideoItem | null> {
     try {
@@ -25,16 +25,6 @@ async function getVideoDetails(videoId: string): Promise<VideoItem | null> {
     }
 }
 
-async function getVideoTranscriptAndSummary(videoId: string) {
-    try {
-        const transcript = await getVideoTranscript(videoId);
-        const summary = await generateSummary(transcript);
-        return { transcript, summary };
-    } catch (error) {
-        console.error('Error processing transcript:', error);
-        return { transcript: null, summary: null };
-    }
-}
 
 interface WatchContentProps {
     videoId: string;
@@ -100,23 +90,30 @@ export async function WatchContent({ videoId }: WatchContentProps) {
                     <div className="grid lg:grid-cols-2 gap-8">
                         {/* AI Summary */}
                         <div className="bg-white rounded-2xl shadow-xl p-8">
-                            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                                <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
-                                    <svg
-                                        className="w-5 h-5 text-white"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                                        />
-                                    </svg>
+                            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
+                                        <svg
+                                            className="w-5 h-5 text-white"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                                            />
+                                        </svg>
+                                    </div>
+                                    AI Summary
                                 </div>
-                                AI Summary
+                                {transcriptData.fromCache && (
+                                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                                        Cached
+                                    </span>
+                                )}
                             </h2>
                             {transcriptData.summary ? (
                                 <div className="prose prose-gray max-w-none">
@@ -151,23 +148,30 @@ export async function WatchContent({ videoId }: WatchContentProps) {
 
                         {/* Transcript */}
                         <div className="bg-white rounded-2xl shadow-xl p-8">
-                            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-                                <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-teal-500 rounded-lg flex items-center justify-center">
-                                    <svg
-                                        className="w-5 h-5 text-white"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
-                                        />
-                                    </svg>
+                            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-teal-500 rounded-lg flex items-center justify-center">
+                                        <svg
+                                            className="w-5 h-5 text-white"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
+                                            />
+                                        </svg>
+                                    </div>
+                                    Transcript
                                 </div>
-                                Transcript
+                                {transcriptData.fromCache && (
+                                    <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                                        Cached
+                                    </span>
+                                )}
                             </h2>
                             {transcriptData.transcript ? (
                                 <div className="max-h-96 overflow-y-auto">

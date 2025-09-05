@@ -1,4 +1,4 @@
-import { integer, pgTable, timestamp, varchar, primaryKey } from "drizzle-orm/pg-core";
+import { integer, pgTable, timestamp, varchar, primaryKey, text } from "drizzle-orm/pg-core";
 import { relations } from 'drizzle-orm';
 
 
@@ -51,3 +51,12 @@ export const usersToChannelsRelations = relations(usersToChannelsTable, ({ one }
         references: [channelsTable.id],
     }),
 }));
+
+export const videoTranscriptsTable = pgTable("video_transcripts", {
+    id: integer().primaryKey().generatedAlwaysAsIdentity(),
+    videoId: varchar({ length: 255 }).notNull().unique(),
+    transcript: text(),
+    summary: text(),
+    createdAt: timestamp("createdAt").defaultNow(),
+    updatedAt: timestamp("updatedAt").defaultNow().$onUpdate(() => new Date()),
+});
