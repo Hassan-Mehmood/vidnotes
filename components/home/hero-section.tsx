@@ -5,7 +5,10 @@ interface HeroSectionProps {
     onViewSubscriptions: () => void;
 }
 
-export default function HeroSection({ onExploreChannels, onViewSubscriptions }: HeroSectionProps) {
+export default function HeroSection({
+    onExploreChannels,
+    onViewSubscriptions,
+}: HeroSectionProps) {
     return (
         <div className="relative overflow-hidden bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 text-white">
             {/* Background Pattern */}
@@ -42,26 +45,6 @@ export default function HeroSection({ onExploreChannels, onViewSubscriptions }: 
                         and never miss content from your favorite creators.
                         Experience YouTube like never before.
                     </p>
-
-                    {/* CTA Buttons */}
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                        <button 
-                            onClick={onExploreChannels}
-                            className="group relative px-8 py-4 bg-gradient-to-r from-pink-500 to-violet-600 rounded-full font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-pink-500/25"
-                        >
-                            <span className="relative z-10">
-                                Explore Channels
-                            </span>
-                            <div className="absolute inset-0 bg-gradient-to-r from-pink-600 to-violet-700 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        </button>
-
-                        <button 
-                            onClick={onViewSubscriptions}
-                            className="group px-8 py-4 border-2 border-blue-300 rounded-full font-semibold text-lg text-blue-100 transition-all duration-300 hover:bg-blue-300 hover:text-blue-900 hover:scale-105"
-                        >
-                            View Subscriptions
-                        </button>
-                    </div>
                 </div>
             </div>
 

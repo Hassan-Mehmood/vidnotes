@@ -27,7 +27,7 @@ export default function RootLayout({
         <ClerkProvider>
             <html lang="en">
                 <body
-                    className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans min-h-screen min-h-screen bg-gradient-to-br from-gray-50 to-gray-100`}
+                    className={`${geistSans.variable} ${geistMono.variable} antialiased font-sans min-h-screen bg-gradient-to-br from-gray-50 to-gray-100`}
                 >
                     {children}
                 </body>

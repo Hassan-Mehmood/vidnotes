@@ -21,11 +21,19 @@ export interface ChannelSnippet {
     country?: string;
 }
 
+export interface ChannelStatistics {
+    viewCount?: string;
+    subscriberCount?: string;
+    hiddenSubscriberCount?: boolean;
+    videoCount?: string;
+}
+
 export interface ChannelItem {
     kind: string;
     etag: string;
     id: string;
     snippet: ChannelSnippet;
+    statistics?: ChannelStatistics;
 }
 
 export interface YouTubeChannelsResponse {

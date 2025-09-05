@@ -1,8 +1,9 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { ChannelItem } from '@/types/youtube';
-import { subscribe, unsubscribe } from '@/functions/youtube';
+import { useState } from 'react';
 
 interface ChannelCardProps {
     channel: ChannelItem;
@@ -13,8 +14,40 @@ export default function ChannelCard({
     channel,
     isSubscribed = false,
 }: ChannelCardProps) {
+    const [subscribed, setSubscribed] = useState(isSubscribed);
+    const [loading, setLoading] = useState(false);
+
+    const handleSubscribe = async (e: React.MouseEvent) => {
+        e.preventDefault(); // Prevent navigation when clicking subscribe button
+        e.stopPropagation();
+        
+        setLoading(true);
+        try {
+            const response = await fetch('/api/subscribe', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    channelId: channel.id,
+                    channelTitle: channel.snippet.title,
+                    action: subscribed ? 'unsubscribe' : 'subscribe'
+                }),
+            });
+
+            if (response.ok) {
+                setSubscribed(!subscribed);
+            }
+        } catch (error) {
+            console.error('Error toggling subscription:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
-        <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 hover:scale-[1.02] overflow-hidden flex flex-col h-full border border-gray-100 hover:border-purple-200">
+        <Link href={`/channel/${channel.id}`}>
+            <div className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-3 hover:scale-[1.02] overflow-hidden flex flex-col h-full border border-gray-100 hover:border-purple-200 cursor-pointer">
             {/* Channel Thumbnail */}
             <div className="relative overflow-hidden">
                 <Image
@@ -80,19 +113,19 @@ export default function ChannelCard({
                     {/* Subscribe Button */}
                     <button
                         className={`w-full font-semibold py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center group/btn shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] ${
-                            isSubscribed
+                            subscribed
                                 ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white'
                                 : 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white'
-                        }`}
-                        onClick={() => {
-                            if (isSubscribed) {
-                                unsubscribe(channel);
-                            } else {
-                                subscribe(channel);
-                            }
-                        }}
+                        } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        onClick={handleSubscribe}
+                        disabled={loading}
                     >
-                        {isSubscribed ? (
+                        {loading ? (
+                            <svg className="w-5 h-5 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        ) : subscribed ? (
                             <svg
                                 className="w-5 h-5 mr-2 group-hover/btn:scale-110 transition-transform duration-200"
                                 fill="currentColor"
@@ -110,11 +143,12 @@ export default function ChannelCard({
                             </svg>
                         )}
                         <span className="group-hover/btn:tracking-wide transition-all duration-200">
-                            {isSubscribed ? 'Subscribed' : 'Subscribe'}
+                            {loading ? 'Loading...' : subscribed ? 'Subscribed' : 'Subscribe'}
                         </span>
                     </button>
                 </div>
             </div>
-        </div>
+            </div>
+        </Link>
     );
 }

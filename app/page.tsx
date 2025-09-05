@@ -3,7 +3,6 @@ import HomeClient from '@/components/home/home-client';
 import {
     YouTubeChannelsResponse,
     ChannelItem,
-    YouTubeVideosResponse,
     VideoItem,
 } from '@/types/youtube';
 import { db } from '@/db';
