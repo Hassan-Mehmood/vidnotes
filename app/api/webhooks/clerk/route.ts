@@ -56,3 +56,8 @@ export async function POST(request: Request) {
 
     return new Response("Webhook received", { status: 200 });
 }
+
+// Test GET endpoint
+export const GET = () => {
+    return new Response("GET method not allowed", { status: 405 });
+}
