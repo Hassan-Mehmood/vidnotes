@@ -12,70 +12,6 @@ interface HomeTabsProps {
     channels: ChannelItem[];
 }
 
-// Dummy video data for subscribed channels
-const recentVideos = [
-    {
-        id: '1',
-        title: 'I Gave $1,000,000 To Random People',
-        channelName: 'MrBeast',
-        channelId: 'UCX6OQ3DkcsbYNE6H8uQQuVA',
-        thumbnail: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
-        publishedAt: '2 days ago',
-        duration: '15:42',
-        views: '25M',
-    },
-    {
-        id: '2',
-        title: 'Dynamite - BTS Official Music Video',
-        channelName: 'BangtanTV (BTS)',
-        channelId: 'UC3IZKseVpdzPSBaWxBxundA',
-        thumbnail: 'https://i.ytimg.com/vi/gdZLi9oWNZg/maxresdefault.jpg',
-        publishedAt: '1 week ago',
-        duration: '3:19',
-        views: '1.2B',
-    },
-    {
-        id: '3',
-        title: 'WWE Raw Highlights - Championship Match',
-        channelName: 'WWE',
-        channelId: 'UCJ5v_MCY6GNUBTO8-D3XoAg',
-        thumbnail: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
-        publishedAt: '3 days ago',
-        duration: '12:35',
-        views: '5.2M',
-    },
-    {
-        id: '4',
-        title: 'Happier - Marshmello ft. Bastille',
-        channelName: 'Marshmello',
-        channelId: 'UCeLHszkByNZtPKcaVXOCOQQ',
-        thumbnail: 'https://i.ytimg.com/vi/m7Bc3pLyij0/maxresdefault.jpg',
-        publishedAt: '5 days ago',
-        duration: '3:54',
-        views: '890M',
-    },
-    {
-        id: '5',
-        title: 'Baby - Justin Bieber ft. Ludacris',
-        channelName: 'Justin Bieber',
-        channelId: 'UCIwFjwMjI0y7PDBVEO9-bkQ',
-        thumbnail: 'https://i.ytimg.com/vi/kffacxfA7G4/maxresdefault.jpg',
-        publishedAt: '1 day ago',
-        duration: '3:45',
-        views: '3.1B',
-    },
-    {
-        id: '6',
-        title: 'Diana and Roma Fun Adventures',
-        channelName: 'Kids Diana Show',
-        channelId: 'UCk8GzjMOrta8yxDcKfylJYw',
-        thumbnail: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
-        publishedAt: '4 days ago',
-        duration: '8:22',
-        views: '45M',
-    },
-];
-
 export default function HomeTabs({ channels }: HomeTabsProps) {
     const [activeTab, setActiveTab] = useState('home');
     const [searchModalOpen, setSearchModalOpen] = useState(false);
@@ -162,23 +98,21 @@ export default function HomeTabs({ channels }: HomeTabsProps) {
                     </section>
                 </TabsContent>
 
-                <TabsContent
-                    value="subscriptions"
-                    className="p-8 md:p-12"
-                >
+                <TabsContent value="subscriptions" className="p-8 md:p-12">
                     <section>
                         <PageHeader
                             title="Latest from Your Subscriptions"
                             description="Stay up to date with the newest content from channels you love"
                         />
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                             {recentVideos.map((video) => (
                                 <VideoCard
                                     key={video.id}
                                     video={video}
+                                    subscriptions={[]}
                                 />
                             ))}
-                        </div>
+                        </div> */}
                     </section>
                 </TabsContent>
             </Tabs>
